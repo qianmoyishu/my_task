@@ -141,6 +141,34 @@
   background: linear-gradient(180deg, rgba(255, 251, 246, 0.98) 0%, rgba(255, 245, 235, 0.98) 100%);
 }
 
+.metric-card {
+  position: relative;
+  overflow: hidden;
+  animation: cardEnter 380ms ease-out 160ms both;
+}
+
+.metric-glow {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 220rpx;
+  height: 8rpx;
+  background: linear-gradient(90deg, rgba(240, 180, 106, 0), rgba(217, 130, 43, 0.78));
+  border-radius: 0 18rpx 0 18rpx;
+}
+
+.metric-Gsr {
+  border-top-color: #cf8a42;
+}
+
+.metric-MLX90600 {
+  border-top-color: #e2a84a;
+}
+
+.metric-Heart_rate {
+  border-top-color: #c96f66;
+}
+
 .data-header {
   display: flex;
   justify-content: space-between;
@@ -158,6 +186,10 @@
   font-size: 40rpx;
   font-weight: 700;
   color: #b8611f;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 241, 220, 0.8);
+  animation: valuePop 260ms ease-out both;
 }
 
 .history-container {
@@ -192,6 +224,7 @@
   padding: 8rpx 18rpx;
   border-radius: 999rpx;
   background: rgba(255, 244, 231, 0.92);
+  transition: transform 140ms ease, opacity 140ms ease;
 }
 
 .history-refresh,
@@ -211,6 +244,7 @@
   max-height: 400rpx;
   transition: max-height 0.3s ease;
   overflow: hidden;
+  animation: historyDrop 260ms ease-out both;
 }
 
 .history-body-hide {
@@ -228,6 +262,7 @@
   justify-content: space-between;
   padding: 15rpx 0;
   border-bottom: 1rpx solid rgba(241, 220, 200, 0.8);
+  animation: listFade 240ms ease-out both;
 }
 
 .history-time,
@@ -320,6 +355,10 @@
   background: linear-gradient(180deg, rgba(255, 249, 241, 0.98) 0%, rgba(255, 241, 225, 0.98) 100%);
 }
 
+.panel-enter {
+  animation: panelEnter 320ms ease-out both;
+}
+
 .thermal-header {
   display: flex;
   justify-content: space-between;
@@ -349,6 +388,7 @@
   color: #fff;
   border-radius: 999rpx;
   font-size: 24rpx;
+  transition: transform 140ms ease, opacity 140ms ease;
 }
 
 .thermal-nav-btn.disabled {
@@ -381,12 +421,14 @@
   border-radius: 999rpx;
   color: #8a6752;
   background: rgba(255, 248, 238, 0.95);
+  transition: transform 140ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
 
 .scheme-btn.active {
   background: linear-gradient(135deg, #efb267 0%, #d77a2f 100%);
   color: #fff;
   border-color: #d77a2f;
+  animation: activePop 220ms ease-out both;
 }
 
 .thermal-canvas-wrap {
@@ -399,6 +441,7 @@
   border: 1rpx solid rgba(232, 190, 145, 0.46);
   border-radius: 14rpx;
   background: rgba(255, 255, 255, 0.72);
+  box-shadow: inset 0 0 0 1rpx rgba(255, 255, 255, 0.5), 0 10rpx 20rpx rgba(196, 126, 61, 0.1);
 }
 
 .thermal-grid {
@@ -419,6 +462,7 @@
   align-items: center;
   justify-content: center;
   border: 1rpx solid rgba(255, 255, 255, 0.32);
+  transition: transform 160ms ease, opacity 160ms ease;
 }
 
 .cell-temp {
@@ -481,12 +525,14 @@
   border-radius: 999rpx;
   font-size: 24rpx;
   color: #7d604d;
+  transition: transform 140ms ease, background-color 180ms ease, box-shadow 180ms ease;
 }
 
 .date-tag.selected {
   background: linear-gradient(135deg, #efb267 0%, #d77a2f 100%);
   color: #fff;
   border-color: #d77a2f;
+  animation: activePop 220ms ease-out both;
 }
 
 .date-tag.selected.empty {
@@ -517,12 +563,14 @@
   color: #c66a17;
   border: 1rpx solid rgba(217, 130, 43, 0.45);
   font-size: 22rpx;
+  transition: transform 140ms ease, opacity 140ms ease;
 }
 
 .slider-chart-wrapper {
   padding: 16rpx 0 0 0;
   background: rgba(255, 245, 232, 0.95);
   border-radius: 14rpx 14rpx 0 0;
+  animation: panelEnter 260ms ease-out both;
 }
 
 .slider-data {
@@ -577,6 +625,8 @@
   display: flex;
   flex-direction: row;
   position: relative;
+  border-radius: 16rpx;
+  background: rgba(255, 250, 244, 0.66);
 }
 
 .chart-y-axis {
@@ -642,4 +692,71 @@
 .chart-arrow.disabled {
   background: rgba(191, 164, 138, 0.5);
   color: rgba(255, 255, 255, 0.72);
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(22rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes panelEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20rpx) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes valuePop {
+  0% {
+    opacity: 0.72;
+    transform: scale(0.94);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes activePop {
+  0% {
+    transform: scale(0.96);
+  }
+  70% {
+    transform: scale(1.035);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes historyDrop {
+  from {
+    opacity: 0;
+    transform: translateY(-10rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes listFade {
+  from {
+    opacity: 0;
+    transform: translateX(12rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }

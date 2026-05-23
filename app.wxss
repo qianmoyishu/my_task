@@ -25,6 +25,7 @@ page {
   min-height: 100vh;
   box-sizing: border-box;
   padding: 26rpx;
+  animation: pageEnter 360ms ease-out both;
 }
 
 .card {
@@ -34,6 +35,7 @@ page {
   border: 1rpx solid rgba(232, 190, 145, 0.42);
   border-radius: 18rpx;
   box-shadow: 0 10rpx 28rpx rgba(202, 144, 74, 0.12);
+  transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 }
 
 .flex-row {
@@ -125,4 +127,43 @@ page {
 
 button::after {
   border: none;
+}
+
+.pressable {
+  transform: scale(0.97);
+  opacity: 0.88;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(18rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(24rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes softPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(217, 130, 43, 0.24);
+  }
+  70% {
+    box-shadow: 0 0 0 14rpx rgba(217, 130, 43, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(217, 130, 43, 0);
+  }
 }

@@ -1,0 +1,47 @@
+<view class="chart-panel">
+  <view class="slider-chart-wrapper" wx:if="{{chartDataPoints.length > 0}}">
+    <view class="slider-data">
+      <text class="slider-time">{{centerPointData.time}}</text>
+      <text class="slider-value">{{centerPointData.value}}{{currentData.unit}}</text>
+    </view>
+    <view class="slider-line-container">
+      <slider class="data-slider"
+              min="0"
+              max="{{chartDataPoints.length - 1}}"
+              value="{{sliderIndex}}"
+              activeColor="#d77a2f"
+              block-size="20"
+              bindchange="onSliderChange"
+              bindchanging="onSliderChanging"/>
+      <view class="slider-indicator-line" style="left: {{sliderPercent}}%;"></view>
+    </view>
+  </view>
+
+  <view class="chart-container-wrapper">
+    <view class="chart-arrow chart-arrow-left {{chartPage <= 1 ? 'disabled' : ''}}"
+          bindtap="onPrevPage"
+          wx:if="{{chartTotalPages > 1}}">
+      <text>←</text>
+    </view>
+    <view class="chart-y-axis">
+      <canvas canvas-id="yAxisChart" id="yAxisChart" class="y-axis-canvas"></canvas>
+    </view>
+    <scroll-view class="chart-scroll-area" scroll-x="{{true}}" bindscroll="onChartScroll">
+      <view class="chart-content" style="width: {{chartWidth}}px;">
+        <canvas canvas-id="currentChart"
+                id="currentChart"
+                class="medical-chart"
+                style="width: {{chartWidth}}px; height: 280px;"></canvas>
+      </view>
+    </scroll-view>
+    <view class="chart-arrow chart-arrow-right {{chartPage >= chartTotalPages ? 'disabled' : ''}}"
+          bindtap="onNextPage"
+          wx:if="{{chartTotalPages > 1}}">
+      <text>→</text>
+    </view>
+  </view>
+
+  <view class="chart-page-bar" wx:if="{{chartTotalPages > 1}}">
+    <text class="page-hint">{{chartPage}} / {{chartTotalPages}} 页</text>
+  </view>
+</view>

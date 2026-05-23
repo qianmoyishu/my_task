@@ -1,0 +1,64 @@
+<view class="history-container">
+  <view class="available-dates-row">
+    <view class="dates-header">
+      <text class="date-label">可用数据 (点击多选):</text>
+      <view class="dates-actions">
+        <view class="clear-dates-btn"
+              hover-class="pressable"
+              hover-stay-time="90"
+              bindtap="onClearDates"
+              wx:if="{{selectedDateKeys.length > 0}}">清空({{selectedDateKeys.length}})</view>
+        <view class="refresh-dates-btn"
+              hover-class="pressable"
+              hover-stay-time="90"
+              bindtap="onLoadDates">刷新</view>
+      </view>
+    </view>
+
+    <scroll-view scroll-x class="dates-scroll" wx:if="{{availableDates.length > 0}}">
+      <view class="date-tag {{item.selected ? (item.empty ? 'selected empty' : 'selected') : ''}}"
+            wx:for="{{availableDates}}"
+            wx:key="key"
+            data-key="{{item.key}}"
+            hover-class="pressable"
+            hover-stay-time="90"
+            bindtap="onToggleDate">
+        {{item.display}}{{item.empty ? ' 空' : ''}}
+      </view>
+    </scroll-view>
+    <view wx:else class="no-dates">{{datesLoading ? '加载中...' : '暂无数据'}}</view>
+  </view>
+
+  <view class="history-header">
+    <view class="history-title" bindtap="onToggleHistory">
+      历史记录
+      <text class="obs-badge" wx:if="{{obsHistory.length > 0}}">(OBS: {{obsHistory.length}}条)</text>
+      <text class="obs-loading" wx:if="{{obsLoading}}">加载中...</text>
+    </view>
+    <view class="history-actions">
+      <view class="history-refresh"
+            hover-class="pressable"
+            hover-stay-time="90"
+            bindtap="onRefreshHistory">刷新</view>
+      <view class="history-toggle"
+            hover-class="pressable"
+            hover-stay-time="90"
+            bindtap="onToggleHistory">{{showHistory ? '收起' : '展开'}}</view>
+    </view>
+  </view>
+
+  <view class="{{showHistory ? 'history-body-show' : 'history-body-hide'}}">
+    <scroll-view scroll-y class="history-list" wx:if="{{pagedHistory.length > 0}}">
+      <view wx:for="{{pagedHistory}}" wx:key="index" class="history-item">
+        <text class="history-time">{{item.time}}</text>
+        <text class="history-value">{{item.value}}{{currentData.unit}}</text>
+      </view>
+    </scroll-view>
+    <view wx:else class="no-data">暂无历史数据</view>
+    <view class="history-pagination">
+      <button class="page-btn" hover-class="pressable" hover-stay-time="90" bindtap="onPrevPage">上一页</button>
+      <text class="page-info">第{{historyPage}}页</text>
+      <button class="page-btn" hover-class="pressable" hover-stay-time="90" bindtap="onNextPage">下一页</button>
+    </view>
+  </view>
+</view>

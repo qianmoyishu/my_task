@@ -17,17 +17,22 @@ class WxChart {
     this.yAxisMin = opts.yAxisMin;
     this.yAxisMax = opts.yAxisMax;
     this.yAxisFormat = opts.yAxis && opts.yAxis.format;
+    this.context = opts.context;
   }
 
   draw() {
-    const ctx = wx.createCanvasContext(this.canvasId);
+    const ctx = this.context
+      ? wx.createCanvasContext(this.canvasId, this.context)
+      : wx.createCanvasContext(this.canvasId);
     this.drawChart(ctx);
     ctx.draw();
   }
 
   // 绘制固定的Y轴
   drawYAxis(yAxisCanvasId) {
-    const ctx = wx.createCanvasContext(yAxisCanvasId);
+    const ctx = this.context
+      ? wx.createCanvasContext(yAxisCanvasId, this.context)
+      : wx.createCanvasContext(yAxisCanvasId);
     const width = 40;  // Y轴区域宽度
     const height = this.height;
     const topPadding = 30;

@@ -1,8 +1,20 @@
 <view class="switch-bar">
   <view class="switch-group">
-    <button class="switch-btn {{currentType === 'Gsr' ? 'active' : ''}}" data-type="Gsr" bindtap="onChangeType">皮肤电导</button>
-    <button class="switch-btn {{currentType === 'MLX90600' ? 'active' : ''}}" data-type="MLX90600" bindtap="onChangeType">体温</button>
-    <button class="switch-btn {{currentType === 'Heart_rate' ? 'active' : ''}}" data-type="Heart_rate" bindtap="onChangeType">心率</button>
-    <button class="switch-btn thermal-btn {{showThermal ? 'active' : ''}}" bindtap="onToggleThermal">热成像</button>
+    <button class="switch-btn {{currentType === 'Gsr' ? 'active' : ''}}" hover-class="switch-btn-hover" hover-stay-time="90" data-type="Gsr" bindtap="onChangeType">
+      <view class="metric-dot gsr-dot"></view>
+      <text>皮肤电导</text>
+    </button>
+    <button class="switch-btn {{currentType === 'MLX90600' ? 'active' : ''}}" hover-class="switch-btn-hover" hover-stay-time="90" data-type="MLX90600" bindtap="onChangeType">
+      <view class="metric-dot temp-dot"></view>
+      <text>体温</text>
+    </button>
+    <button class="switch-btn {{currentType === 'Heart_rate' ? 'active' : ''}}" hover-class="switch-btn-hover" hover-stay-time="90" data-type="Heart_rate" bindtap="onChangeType">
+      <view class="metric-dot heart-dot"></view>
+      <text>心率</text>
+    </button>
+    <button class="switch-btn thermal-btn {{showThermal ? 'active' : ''}}" hover-class="switch-btn-hover" hover-stay-time="90" bindtap="onToggleThermal">
+      <view class="metric-dot thermal-dot"></view>
+      <text>热成像</text>
+    </button>
   </view>
 </view>

@@ -19,147 +19,57 @@
     bind:togglethermal="toggleThermal"
   ></metric-switch>
   
-  <!-- 热成像显示区域 -->
-  <view class="card thermal-card" wx:if="{{showThermal}}">
-    <view class="thermal-header">
-      <view class="thermal-title">红外热成像 (6×8)</view>
-      <view class="thermal-range">{{thermalGrid.minTemp}}°C ~ {{thermalGrid.maxTemp}}°C</view>
-    </view>
-    
-    <!-- 热成像历史导航 -->
-    <view class="thermal-history-nav" wx:if="{{thermalHistory.length > 1}}">
-      <view class="thermal-nav-btn {{thermalHistoryIndex >= thermalHistory.length - 1 ? 'disabled' : ''}}" bindtap="prevThermalHistory">◀ 更早</view>
-      <view class="thermal-nav-info">
-        <text class="thermal-time">{{thermalHistory[thermalHistoryIndex].time}}</text>
-        <text class="thermal-page">{{thermalHistoryIndex + 1}} / {{thermalHistory.length}}</text>
-      </view>
-      <view class="thermal-nav-btn {{thermalHistoryIndex <= 0 ? 'disabled' : ''}}" bindtap="nextThermalHistory">更新 ▶</view>
-    </view>
-    
-    <!-- 色彩方案选择 -->
-    <view class="color-scheme-bar">
-      <view class="scheme-btn {{colorScheme==='iron'?'active':''}}" data-scheme="iron" bindtap="changeColorScheme">铁红</view>
-      <view class="scheme-btn {{colorScheme==='fire'?'active':''}}" data-scheme="fire" bindtap="changeColorScheme">火焰</view>
-      <view class="scheme-btn {{colorScheme==='classic'?'active':''}}" data-scheme="classic" bindtap="changeColorScheme">经典</view>
-      <view class="scheme-btn {{colorScheme==='medical'?'active':''}}" data-scheme="medical" bindtap="changeColorScheme">医疗</view>
-    </view>
-    
-    <!-- Canvas热成像图 -->
-    <view class="thermal-canvas-wrap">
-      <canvas canvas-id="thermalCanvas" class="thermal-canvas" style="width: 300px; height: 180px;"></canvas>
-    </view>
-    
-    <!-- 网格数据 -->
-    <view class="thermal-grid" wx:if="{{thermalGrid.gridData.length > 0}}">
-      <view class="thermal-row" wx:for="{{thermalGrid.gridData}}" wx:key="index" wx:for-item="row">
-        <view class="thermal-cell" wx:for="{{row}}" wx:key="index" wx:for-item="cell" style="background-color: {{cell.color}};">
-          <text class="cell-temp">{{cell.temp}}</text>
-        </view>
-      </view>
-    </view>
-    <view wx:else class="no-thermal">暂无热成像数据</view>
-    
-    <!-- 温度统计 -->
-    <view class="thermal-stats">
-      <view class="stat-item"><text class="stat-label">最低</text><text class="stat-val">{{thermalGrid.minTemp}}C</text></view>
-      <view class="stat-item"><text class="stat-label">平均</text><text class="stat-val">{{thermalGrid.avgTemp}}C</text></view>
-      <view class="stat-item"><text class="stat-label">最高</text><text class="stat-val">{{thermalGrid.maxTemp}}C</text></view>
-    </view>
-  </view>
+  <thermal-panel
+    id="thermalPanel"
+    wx:if="{{showThermal}}"
+    thermalGrid="{{thermalGrid}}"
+    thermalHistory="{{thermalHistory}}"
+    thermalHistoryIndex="{{thermalHistoryIndex}}"
+    colorScheme="{{colorScheme}}"
+    bind:prev="prevThermalHistory"
+    bind:next="nextThermalHistory"
+    bind:schemechange="changeColorScheme"
+  ></thermal-panel>
 
-  <view class="card data-card medical-card">
+  <view class="card data-card medical-card metric-card metric-{{currentType}}">
+    <view class="metric-glow"></view>
     <view class="data-header">
       <view class="data-title">{{currentType === 'Gsr' ? '皮肤电导' : (currentType === 'MLX90600' ? '体温' : '心率')}}</view>
       <view class="data-value">{{currentData.current}}{{currentData.unit}}</view>
     </view>
-    <view class="history-container">
-      <!-- 可用日期列表 (多选) -->
-      <view class="available-dates-row">
-        <view class="dates-header">
-          <text class="date-label">可用数据 (点击多选):</text>
-          <view class="dates-actions">
-            <view class="clear-dates-btn" bindtap="clearSelectedDates" wx:if="{{selectedDateKeys.length > 0}}">清空({{selectedDateKeys.length}})</view>
-            <view class="refresh-dates-btn" bindtap="loadAvailableDates">刷新</view>
-          </view>
-        </view>
-        <scroll-view scroll-x class="dates-scroll" wx:if="{{availableDates.length > 0}}">
-          <view class="date-tag {{item.selected ? (item.empty ? 'selected empty' : 'selected') : ''}}" 
-                wx:for="{{availableDates}}" wx:key="key" 
-                data-key="{{item.key}}" bindtap="onToggleDateFile">
-            {{item.display}}{{item.empty ? ' ⚠' : ''}}
-          </view>
-        </scroll-view>
-        <view wx:else class="no-dates">{{datesLoading ? '加载中...' : '暂无数据'}}</view>
-      </view>
-      
-      <view class="history-header">
-        <view class="history-title" bindtap="toggleHistory">
-          历史记录 
-          <text class="obs-badge" wx:if="{{obsHistory.length > 0}}">(OBS: {{obsHistory.length}}条)</text>
-          <text class="obs-loading" wx:if="{{obsLoading}}">加载中...</text>
-        </view>
-        <view class="history-actions">
-          <view class="history-refresh" bindtap="refreshObsHistory">刷新</view>
-          <view class="history-toggle" bindtap="toggleHistory">{{showHistory ? '收起' : '展开'}}</view>
-        </view>
-      </view>
-      <view class="{{showHistory ? 'history-body-show' : 'history-body-hide'}}">
-        <scroll-view scroll-y class="history-list" wx:if="{{pagedHistory.length > 0}}">
-          <view wx:for="{{pagedHistory}}" wx:key="index" class="history-item">
-            <text class="history-time">{{item.time}}</text>
-            <text class="history-value">{{item.value}}{{currentData.unit}}</text>
-          </view>
-        </scroll-view>
-        <view wx:else class="no-data">暂无历史数据</view>
-        <view class="history-pagination">
-          <button class="page-btn" bindtap="prevHistoryPage">上一页</button>
-          <text class="page-info">第{{historyPage}}页</text>
-          <button class="page-btn" bindtap="nextHistoryPage">下一页</button>
-        </view>
-      </view>
-    </view>
-    <!-- 数据点滑块控制 -->
-    <view class="slider-chart-wrapper" wx:if="{{chartDataPoints.length > 0}}">
-      <view class="slider-data">
-        <text class="slider-time">{{centerPointData.time}}</text>
-        <text class="slider-value">{{centerPointData.value}}{{currentData.unit}}</text>
-      </view>
-      <view class="slider-line-container">
-        <slider class="data-slider" 
-                min="0" max="{{chartDataPoints.length - 1}}" 
-                value="{{sliderIndex}}" 
-                activeColor="#d77a2f"
-                block-size="20"
-                bindchange="onSliderChange"
-                bindchanging="onSliderChanging"/>
-        <!-- 虚线跟随滑块 -->
-        <view class="slider-indicator-line" style="left: {{sliderPercent}}%;"></view>
-      </view>
-    </view>
-    <view class="chart-container-wrapper">
-      <!-- 左箭头 -->
-      <view class="chart-arrow chart-arrow-left {{chartPage <= 1 ? 'disabled' : ''}}" 
-            bindtap="onChartScrollToLeft" wx:if="{{chartTotalPages > 1}}">
-        <text>◀</text>
-      </view>
-      <view class="chart-y-axis">
-        <canvas canvas-id="yAxisChart" id="yAxisChart" class="y-axis-canvas"></canvas>
-      </view>
-      <scroll-view class="chart-scroll-area" scroll-x="{{true}}" bindscroll="onChartScroll">
-        <view class="chart-content" style="width: {{chartWidth}}px;">
-          <canvas canvas-id="currentChart" id="currentChart" class="medical-chart" 
-                  style="width: {{chartWidth}}px; height: 280px;"></canvas>
-        </view>
-      </scroll-view>
-      <!-- 右箭头 -->
-      <view class="chart-arrow chart-arrow-right {{chartPage >= chartTotalPages ? 'disabled' : ''}}" 
-            bindtap="onChartScrollToRight" wx:if="{{chartTotalPages > 1}}">
-        <text>▶</text>
-      </view>
-    </view>
-    <!-- 分页信息 -->
-    <view class="chart-page-bar" wx:if="{{chartTotalPages > 1}}">
-      <text class="page-hint">{{chartPage}} / {{chartTotalPages}} 页</text>
-    </view>
+    <history-panel
+      availableDates="{{availableDates}}"
+      datesLoading="{{datesLoading}}"
+      selectedDateKeys="{{selectedDateKeys}}"
+      obsHistory="{{obsHistory}}"
+      obsLoading="{{obsLoading}}"
+      showHistory="{{showHistory}}"
+      pagedHistory="{{pagedHistory}}"
+      historyPage="{{historyPage}}"
+      currentData="{{currentData}}"
+      bind:cleardates="clearSelectedDates"
+      bind:loaddates="loadAvailableDates"
+      bind:toggledate="onToggleDateFile"
+      bind:togglehistory="toggleHistory"
+      bind:refreshhistory="refreshObsHistory"
+      bind:prevpage="prevHistoryPage"
+      bind:nextpage="nextHistoryPage"
+    ></history-panel>
+    <chart-panel
+      id="chartPanel"
+      chartDataPoints="{{chartDataPoints}}"
+      centerPointData="{{centerPointData}}"
+      currentData="{{currentData}}"
+      sliderIndex="{{sliderIndex}}"
+      sliderPercent="{{sliderPercent}}"
+      chartPage="{{chartPage}}"
+      chartTotalPages="{{chartTotalPages}}"
+      chartWidth="{{chartWidth}}"
+      bind:sliderchange="onSliderChange"
+      bind:sliderchanging="onSliderChanging"
+      bind:chartscroll="onChartScroll"
+      bind:prevpage="onChartScrollToLeft"
+      bind:nextpage="onChartScrollToRight"
+    ></chart-panel>
   </view>
 </view>

@@ -2,6 +2,9 @@
   "navigationBarTitleText": "红外针灸医疗评测辅助系统",
   "usingComponents": {
     "device-overview": "/components/device-overview/index",
-    "metric-switch": "/components/metric-switch/index"
+    "metric-switch": "/components/metric-switch/index",
+    "thermal-panel": "/components/thermal-panel/index",
+    "history-panel": "/components/history-panel/index",
+    "chart-panel": "/components/chart-panel/index"
   }
 }

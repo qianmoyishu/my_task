@@ -31,15 +31,5 @@
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents",
-  "usingComponents": {
-    "van-button": "/miniprogram/vant/button/index",
-    "van-row": "/miniprogram/vant/row/index",
-    "van-action-sheet": "/miniprogram/vant/action-sheet/index",
-    "van-col": "/miniprogram/vant/col/index",
-    "van-divider": "/miniprogram/vant/divider/index",
-    "van-notice-bar": "/miniprogram/vant/notice-bar/index",
-    "van-popup": "/miniprogram/vant/popup/index",
-    "van-field": "/miniprogram/vant/field/index"
-  }
+  "lazyCodeLoading": "requiredComponents"
 }

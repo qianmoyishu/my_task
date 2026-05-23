@@ -1,7 +1,6 @@
 ﻿// -*- coding: utf-8 -*-
 const api = require('../../utils/api');
 const obsApi = require('../../utils/obs-api');
-const wxCharts = require('../../utils/wxcharts');
 const app = getApp();
 
 // 设备密钥配置 - 包含完整的连接信息
@@ -455,9 +454,10 @@ Page({
 
   drawMedicalCharts() {
     try {
-      const canvas = wx.createCanvasContext('currentChart');
-      canvas.clearRect(0, 0, 1000, 1000);
-      canvas.draw();
+      const panel = this.selectComponent('#chartPanel');
+      if (panel && panel.clearChart) {
+        panel.clearChart();
+      }
       
       setTimeout(() => {
         this.drawChart();
@@ -498,9 +498,10 @@ Page({
       
       // 如果没有数据，清空图表
       if (history.length === 0) {
-        const canvas = wx.createCanvasContext('currentChart');
-        canvas.clearRect(0, 0, 1000, 1000);
-        canvas.draw();
+        const panel = this.selectComponent('#chartPanel');
+        if (panel && panel.clearChart) {
+          panel.clearChart();
+        }
         this.setData({ 
           chartDataPoints: [],
           centerPointData: { time: '', value: '' },
@@ -552,15 +553,14 @@ Page({
         }
       };
       
-      // 绘制固定的Y轴
-      wxCharts.drawYAxisOnly({
+      const yAxisConfig = {
         yAxisCanvasId: 'yAxisChart',
         width: 40,
         height: 280,
         yAxisMin: min,
         yAxisMax: max,
         yAxis: { format: formatFunc }
-      });
+      };
       
       // 绘制主图表（不含Y轴）
       const chartConfig = {
@@ -577,7 +577,10 @@ Page({
         yAxisMax: max,
         yAxis: { format: formatFunc }
       };
-      wxCharts.createLineChart(chartConfig).draw();
+      const panel = this.selectComponent('#chartPanel');
+      if (panel && panel.drawChart) {
+        panel.drawChart({ yAxisConfig, chartConfig });
+      }
       
       // 保存数据点位置用于 tooltip
       const leftPadding = 10;
@@ -735,7 +738,8 @@ Page({
 
   // 切换色彩方案
   changeColorScheme(e) {
-    const scheme = e.currentTarget.dataset.scheme;
+    const scheme = (e.detail && e.detail.scheme) || (e.currentTarget && e.currentTarget.dataset.scheme);
+    if (!scheme) return;
     this.setData({ colorScheme: scheme });
     if (this.data.thermalGrid.data.length === 48) {
       const gridData = this.convertToGridData(this.data.thermalGrid.data);
@@ -940,34 +944,10 @@ Page({
 
   // 绘制热成像图
   drawThermalImage() {
-    const data = this.data.thermalGrid.data;
-    if (!data || data.length !== 48) return;
-    const stats = this.calcThermalStats(data);
-    const ctx = wx.createCanvasContext('thermalCanvas', this);
-    const cw = 240, ch = 180, cellW = cw / 8, cellH = ch / 6;
-    
-    for (let r = 0; r < 6; r++) {
-      for (let c = 0; c < 8; c++) {
-        const temp = data[r * 8 + c];
-        ctx.setFillStyle(this.tempToColor(temp, stats.min, stats.max));
-        ctx.fillRect(c * cellW, r * cellH, cellW, cellH);
-      }
+    const panel = this.selectComponent('#thermalPanel');
+    if (panel && panel.drawThermalImage) {
+      panel.drawThermalImage();
     }
-    
-    // 绘制色带
-    const barX = cw + 10, barW = 20;
-    for (let y = 0; y < ch; y++) {
-      const ratio = 1 - y / ch;
-      const temp = stats.min + ratio * (stats.max - stats.min);
-      ctx.setFillStyle(this.tempToColor(temp, stats.min, stats.max));
-      ctx.fillRect(barX, y, barW, 1);
-    }
-    
-    ctx.setFillStyle('#333');
-    ctx.setFontSize(10);
-    ctx.fillText(stats.max.toFixed(1) + '°C', barX + barW + 5, 12);
-    ctx.fillText(stats.min.toFixed(1) + '°C', barX + barW + 5, ch);
-    ctx.draw();
   },
 
   // 加载OBS历史数据
@@ -1146,7 +1126,8 @@ Page({
 
   // 切换日期选择（多选）
   onToggleDateFile(e) {
-    const key = e.currentTarget.dataset.key;
+    const key = (e.detail && e.detail.key) || (e.currentTarget && e.currentTarget.dataset.key);
+    if (!key) return;
     let selectedKeys = [...this.data.selectedDateKeys];
     
     // 切换选中状态

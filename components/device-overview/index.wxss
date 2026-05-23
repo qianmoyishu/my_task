@@ -5,6 +5,7 @@
   border: 1rpx solid rgba(232, 190, 145, 0.42);
   border-radius: 18rpx;
   box-shadow: 0 10rpx 28rpx rgba(202, 144, 74, 0.12);
+  animation: cardEnter 360ms ease-out both;
 }
 
 .selector-row {
@@ -45,6 +46,7 @@
   font-size: 27rpx;
   font-weight: 600;
   box-shadow: 0 8rpx 18rpx rgba(215, 122, 47, 0.24);
+  transition: transform 140ms ease, opacity 140ms ease;
 }
 
 .current-device-info {
@@ -74,6 +76,7 @@
   border: 1rpx solid rgba(232, 190, 145, 0.42);
   border-radius: 18rpx;
   box-shadow: 0 14rpx 34rpx rgba(214, 145, 74, 0.16);
+  animation: cardEnter 420ms ease-out 60ms both;
 }
 
 .header-top {
@@ -119,6 +122,7 @@
 
 .dot-online {
   background-color: #7a9d58;
+  animation: onlinePulse 1.8s ease-out infinite;
 }
 
 .dot-offline {
@@ -145,6 +149,7 @@
   font-weight: 600;
   box-shadow: 0 10rpx 20rpx rgba(219, 133, 66, 0.22);
   flex-shrink: 0;
+  transition: transform 140ms ease, opacity 140ms ease;
 }
 
 .loading {
@@ -165,9 +170,33 @@
   background: linear-gradient(135deg, #fff6f3 0%, #ffefea 100%);
   border-left: 8rpx solid #ca6a63;
   border-radius: 18rpx;
+  animation: cardEnter 260ms ease-out both;
 }
 
 .error-message {
   color: #ca6a63;
   font-size: 28rpx;
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(22rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes onlinePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(122, 157, 88, 0.32);
+  }
+  70% {
+    box-shadow: 0 0 0 12rpx rgba(122, 157, 88, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(122, 157, 88, 0);
+  }
 }
