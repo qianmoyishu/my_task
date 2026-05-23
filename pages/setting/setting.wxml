@@ -1,0 +1,116 @@
+<view class="container">
+  <view class="lock-screen" wx:if="{{!isUnlocked}}">
+    <view class="lock-icon">🔒</view>
+    <text class="lock-text">请输入管理员密码</text>
+  </view>
+
+  <view wx:if="{{isUnlocked}}">
+    <view class="header">
+      <text class="title">系统设置</text>
+      <text class="subtitle" wx:if="{{currentDeviceName}}">当前设备: {{currentDeviceName}}</text>
+      <text class="subtitle" wx:else>配置华为云IoTDA连接参数</text>
+    </view>
+
+    <view class="card">
+      <view class="section-title">连接参数</view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text>IAM终端地址</text>
+          <text class="help-icon" bindtap="showHelp" data-tip="iam">?</text>
+        </view>
+        <input class="form-input" value="{{formData.iamEndpoint}}" 
+          placeholder="如: iam.cn-north-4.myhuaweicloud.com"
+          data-field="iamEndpoint" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">账号名</view>
+        <input class="form-input" value="{{formData.userName}}" 
+          placeholder="华为云账号名" data-field="userName" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">IAM用户名</view>
+        <input class="form-input" value="{{formData.iamUserName}}" 
+          placeholder="IAM用户名" data-field="iamUserName" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">IAM密码</view>
+        <input class="form-input" value="{{formData.iamUserPassword}}" password
+          placeholder="IAM密码" data-field="iamUserPassword" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">项目名</view>
+        <input class="form-input" value="{{formData.projectName}}" 
+          placeholder="华为云项目名" data-field="projectName" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text>IoTDA终端地址</text>
+          <text class="help-icon" bindtap="showHelp" data-tip="iotda">?</text>
+        </view>
+        <input class="form-input" value="{{formData.iotDAEndpoint}}" 
+          placeholder="如: iotda.cn-north-4.myhuaweicloud.com"
+          data-field="iotDAEndpoint" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text>项目ID</text>
+          <text class="help-icon" bindtap="showHelp" data-tip="project_id">?</text>
+        </view>
+        <input class="form-input" value="{{formData.project_id}}" 
+          placeholder="华为云项目ID" data-field="project_id" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text>产品ID</text>
+          <text class="help-icon" bindtap="showHelp" data-tip="product_id">?</text>
+        </view>
+        <input class="form-input" value="{{formData.product_id}}" 
+          placeholder="华为云产品ID" data-field="product_id" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">设备ID</view>
+        <input class="form-input" value="{{formData.device_id}}" 
+          placeholder="设备ID" data-field="device_id" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text>刷新间隔(毫秒)</text>
+          <text class="help-icon" bindtap="showHelp" data-tip="interval">?</text>
+        </view>
+        <input class="form-input" type="number" value="{{formData.refreshInterval}}" 
+          placeholder="建议不低于3000毫秒" data-field="refreshInterval" bindinput="onInputChange"/>
+      </view>
+
+      <view class="form-item">
+        <view class="form-label">
+          <text>服务ID</text>
+          <text class="help-icon" bindtap="showHelp" data-tip="service_id">?</text>
+        </view>
+        <input class="form-input" value="{{formData.service_id}}" 
+          placeholder="设备服务ID" data-field="service_id" bindinput="onInputChange"/>
+      </view>
+    </view>
+
+    <view class="action-buttons">
+      <button class="save-btn" bindtap="saveSettings">保存设置</button>
+      <button class="reset-btn" bindtap="resetSettings">重置设置</button>
+    </view>
+
+    <view class="tip-modal" wx:if="{{showTips}}">
+      <view class="tip-content">
+        <view class="tip-text">{{tipContent}}</view>
+        <view class="tip-close" bindtap="closeTips">我知道了</view>
+      </view>
+    </view>
+  </view>
+</view>

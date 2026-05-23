@@ -1,0 +1,52 @@
+/* -*- coding: utf-8 -*- */
+.container { padding: 20rpx; box-sizing: border-box; min-height: 100vh; background-color: #f7f8fa; }
+.header { display: flex; justify-content: space-between; align-items: center; padding: 20rpx 0; margin-bottom: 20rpx; }
+.title { font-size: 36rpx; font-weight: bold; color: #333; }
+.actions { display: flex; gap: 20rpx; }
+.device-info { background-color: #fff; border-radius: 10rpx; padding: 20rpx; margin-bottom: 20rpx; box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1); }
+.device-name { font-size: 32rpx; margin-bottom: 10rpx; }
+.device-status { font-size: 28rpx; margin-bottom: 10rpx; }
+.status-online { color: #07c160; font-weight: bold; }
+.status-offline { color: #ff4d4f; font-weight: bold; }
+.last-updated { font-size: 24rpx; color: #999; }
+.data-cards { display: flex; flex-direction: column; gap: 20rpx; margin-top: 20rpx; }
+.data-card { background-color: #fff; border-radius: 10rpx; padding: 30rpx; box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.1); }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20rpx; font-size: 32rpx; font-weight: bold; }
+.card-title { color: #333; }
+.warning { color: #ff4d4f; }
+.card-body { padding: 10rpx 0; }
+.progress-container { margin-bottom: 20rpx; }
+.scale { display: flex; justify-content: space-between; font-size: 24rpx; color: #999; margin-top: 10rpx; }
+
+/* 热成像卡片样式 */
+.thermal-card { border-top: 5rpx solid #ff6b35; }
+.temp-range { font-size: 24rpx; color: #666; font-weight: normal; }
+.color-scheme-selector { display: flex; align-items: center; margin-bottom: 20rpx; flex-wrap: wrap; gap: 10rpx; }
+.scheme-label { font-size: 26rpx; color: #666; margin-right: 10rpx; }
+.scheme-btn { padding: 8rpx 20rpx; font-size: 24rpx; border: 1rpx solid #ddd; border-radius: 20rpx; color: #666; }
+.scheme-btn.active { background-color: #1989fa; color: #fff; border-color: #1989fa; }
+.thermal-canvas-container { display: flex; justify-content: center; margin: 20rpx 0; }
+.thermal-canvas { border: 1rpx solid #eee; border-radius: 8rpx; }
+
+/* 热成像网格样式 */
+.thermal-grid { display: flex; flex-direction: column; margin: 20rpx 0; }
+.thermal-row { display: flex; justify-content: center; }
+.thermal-cell { width: 80rpx; height: 60rpx; display: flex; align-items: center; justify-content: center; border: 1rpx solid rgba(255,255,255,0.3); }
+.cell-temp { font-size: 18rpx; color: #fff; text-shadow: 0 0 2px #000; }
+.no-thermal-data { text-align: center; padding: 40rpx; color: #999; font-size: 28rpx; }
+.thermal-stats { display: flex; justify-content: space-around; margin-top: 20rpx; padding: 20rpx; background-color: #f5f5f5; border-radius: 8rpx; }
+.stat-item { display: flex; flex-direction: column; align-items: center; }
+.stat-label { font-size: 24rpx; color: #666; }
+.stat-value { font-size: 28rpx; font-weight: bold; color: #333; }
+
+/* 传感器卡片样式 */
+.gsr-card { border-top: 5rpx solid #1989fa; }
+.temp-card { border-top: 5rpx solid #07c160; }
+.heart-card { border-top: 5rpx solid #f39c12; }
+
+/* 设置面板样式 */
+.settings-container { padding: 30rpx; }
+.settings-header { text-align: center; padding: 20rpx 0 40rpx; }
+.settings-title { font-size: 36rpx; font-weight: bold; color: #333; }
+.form-buttons { display: flex; justify-content: space-between; margin-top: 50rpx; padding: 0 20rpx; }
+.form-buttons button { width: 45%; }
