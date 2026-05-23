@@ -115,6 +115,12 @@ Page({
     this.setData({ deviceKeyInput: e.detail.value });
   },
 
+  onDeviceKeyInputFromComponent(e) {
+    this.setData({
+      deviceKeyInput: e.detail.value
+    });
+  },
+
   // 提交密钥
   onSubmitDeviceKey() {
     const key = this.data.deviceKeyInput.trim();
@@ -425,6 +431,14 @@ Page({
 
   changeType(e) {
     this.setData({ currentType: e.currentTarget.dataset.type, historyPage: 1, chartPage: 1 }, () => {
+      this.updateCurrentData();
+      this.drawMedicalCharts();
+    });
+  },
+
+  onChangeTypeFromComponent(e) {
+    const type = e.detail.type;
+    this.setData({ currentType: type, historyPage: 1, chartPage: 1 }, () => {
       this.updateCurrentData();
       this.drawMedicalCharts();
     });

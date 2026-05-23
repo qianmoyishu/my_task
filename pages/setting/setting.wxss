@@ -7,16 +7,19 @@
   align-items: center;
   justify-content: center;
   height: 60vh;
+  background: linear-gradient(180deg, rgba(255, 248, 239, 0.7) 0%, rgba(255, 238, 218, 0.82) 100%);
+  border-radius: 24rpx;
 }
 
 .lock-icon {
   font-size: 120rpx;
   margin-bottom: 30rpx;
+  filter: drop-shadow(0 10rpx 20rpx rgba(220, 144, 75, 0.2));
 }
 
 .lock-text {
   font-size: 32rpx;
-  color: #666;
+  color: #8e705c;
 }
 
 .header {
@@ -24,22 +27,27 @@
 }
 
 .title {
-  font-size: 36rpx;
+  font-size: 38rpx;
   font-weight: bold;
   display: block;
   margin-bottom: 10rpx;
+  color: #684c39;
 }
 
 .subtitle {
   font-size: 26rpx;
-  color: var(--text-color-light);
+  color: #9b7f6c;
+}
+
+.settings-card {
+  background: linear-gradient(180deg, rgba(255, 251, 246, 0.98) 0%, rgba(255, 243, 232, 0.98) 100%);
 }
 
 .section-title {
   font-size: 32rpx;
   font-weight: bold;
   margin-bottom: 30rpx;
-  color: var(--primary-color);
+  color: #c9782f;
 }
 
 .form-item {
@@ -61,20 +69,22 @@
   line-height: 30rpx;
   text-align: center;
   border-radius: 50%;
-  background-color: var(--text-color-light);
+  background: linear-gradient(135deg, #efb267 0%, #d77a2f 100%);
   color: white;
   font-size: 22rpx;
+  box-shadow: 0 6rpx 12rpx rgba(215, 122, 47, 0.18);
 }
 
 .form-input {
   width: 100%;
   height: 80rpx;
-  border: 1px solid var(--border-color);
-  border-radius: 8rpx;
+  border: 1px solid rgba(232, 190, 145, 0.72);
+  border-radius: 16rpx;
   padding: 0 20rpx;
   box-sizing: border-box;
   font-size: 28rpx;
-  background-color: white;
+  background-color: rgba(255, 255, 255, 0.94);
+  color: var(--text-color);
 }
 
 .threshold-input {
@@ -85,6 +95,7 @@
   display: flex;
   justify-content: space-between;
   margin-top: 40rpx;
+  gap: 20rpx;
 }
 
 .save-btn, .reset-btn {
@@ -92,19 +103,21 @@
   height: 80rpx;
   line-height: 80rpx;
   text-align: center;
-  border-radius: 8rpx;
+  border-radius: 999rpx;
   font-size: 30rpx;
+  font-weight: 600;
 }
 
 .save-btn {
-  background-color: var(--primary-color);
+  background: linear-gradient(135deg, #efb267 0%, #d77a2f 100%);
   color: white;
+  box-shadow: 0 10rpx 20rpx rgba(215, 122, 47, 0.22);
 }
 
 .reset-btn {
-  background-color: white;
-  color: var(--text-color);
-  border: 1px solid var(--border-color);
+  background-color: rgba(255, 249, 242, 0.96);
+  color: #8a6752;
+  border: 1px solid rgba(232, 190, 145, 0.72);
 }
 
 .tip-modal {
@@ -122,8 +135,8 @@
 
 .tip-content {
   width: 80%;
-  background-color: white;
-  border-radius: 12rpx;
+  background: linear-gradient(180deg, rgba(255, 251, 246, 1) 0%, rgba(255, 242, 229, 1) 100%);
+  border-radius: 18rpx;
   overflow: hidden;
 }
 
@@ -131,13 +144,14 @@
   padding: 40rpx;
   font-size: 28rpx;
   text-align: center;
+  color: #6a4b37;
 }
 
 .tip-close {
   height: 90rpx;
   line-height: 90rpx;
   text-align: center;
-  border-top: 1px solid var(--border-color);
-  color: var(--primary-color);
+  border-top: 1px solid rgba(232, 190, 145, 0.55);
+  color: #c9782f;
   font-size: 30rpx;
 } 

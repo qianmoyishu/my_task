@@ -1,0 +1,8 @@
+<view class="switch-bar">
+  <view class="switch-group">
+    <button class="switch-btn {{currentType === 'Gsr' ? 'active' : ''}}" data-type="Gsr" bindtap="onChangeType">皮肤电导</button>
+    <button class="switch-btn {{currentType === 'MLX90600' ? 'active' : ''}}" data-type="MLX90600" bindtap="onChangeType">体温</button>
+    <button class="switch-btn {{currentType === 'Heart_rate' ? 'active' : ''}}" data-type="Heart_rate" bindtap="onChangeType">心率</button>
+    <button class="switch-btn thermal-btn {{showThermal ? 'active' : ''}}" bindtap="onToggleThermal">热成像</button>
+  </view>
+</view>

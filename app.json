@@ -5,14 +5,14 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#1989fa",
+    "navigationBarBackgroundColor": "#E4A15D",
     "navigationBarTitleText": "医疗设备监测系统",
     "navigationBarTextStyle": "white"
   },
   "tabBar": {
-    "color": "#999999",
-    "selectedColor": "#1989fa",
-    "backgroundColor": "#ffffff",
+    "color": "#9b8474",
+    "selectedColor": "#d77a2f",
+    "backgroundColor": "#fff8f2",
     "borderStyle": "black",
     "list": [
       {

@@ -11,7 +11,7 @@
       <text class="subtitle" wx:else>配置华为云IoTDA连接参数</text>
     </view>
 
-    <view class="card">
+    <view class="card settings-card">
       <view class="section-title">连接参数</view>
 
       <view class="form-item">

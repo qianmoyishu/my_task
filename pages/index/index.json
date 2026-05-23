@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "红外针灸医疗评测辅助系统"
+  "navigationBarTitleText": "红外针灸医疗评测辅助系统",
+  "usingComponents": {
+    "device-overview": "/components/device-overview/index",
+    "metric-switch": "/components/metric-switch/index"
+  }
 }
