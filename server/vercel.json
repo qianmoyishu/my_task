@@ -1,27 +1,8 @@
 {
-  "version": 2,
-  "builds": [
+  "rewrites": [
     {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/history/list",
-      "dest": "/api/list.js"
-    },
-    {
-      "src": "/api/history",
-      "dest": "/api/history.js"
-    },
-    {
-      "src": "/api/list",
-      "dest": "/api/list.js"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/api/history.js"
+      "source": "/api/history/list",
+      "destination": "/api/list"
     }
   ]
 }
