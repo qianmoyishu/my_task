@@ -63,13 +63,22 @@ function getDeviceFolder(deviceId) {
   return `设备${match[1]}`;
 }
 
+function getSafeDeviceFolder(deviceId) {
+  const match = String(deviceId || '').match(/_medical(\d+)$/i);
+  if (!match) {
+    throw new Error('Unsupported device_id for pain OBS');
+  }
+  // Avoid relying on the source-file encoding for the Chinese OBS folder name.
+  return `\u8bbe\u5907${match[1]}`;
+}
+
 function toEncodedObjectPath(objectKey) {
   return `/${String(objectKey).split('/').map(encodeURIComponent).join('/')}`;
 }
 
 async function findLatestPainObject(config, deviceId) {
   const basePrefix = config.prefix.endsWith('/') ? config.prefix : `${config.prefix}/`;
-  const prefix = `${basePrefix}${getDeviceFolder(deviceId)}/`;
+  const prefix = `${basePrefix}${getSafeDeviceFolder(deviceId)}/`;
   const xml = await requestPainObs(
     config,
     `/?prefix=${encodeURIComponent(prefix)}&max-keys=1000`,
