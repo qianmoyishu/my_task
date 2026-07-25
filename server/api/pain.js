@@ -1,26 +1,25 @@
-const crypto = require('crypto');
-const https = require('https');
+const ObsClient = require('esdk-obs-nodejs');
+
+function readEnv(name) {
+  const value = process.env[name];
+  return typeof value === 'string' ? value.trim() : value;
+}
 
 function getPainObsConfig() {
-  const hasPainAccessKey = Boolean(process.env.PAIN_OBS_ACCESS_KEY_ID);
-  const hasPainSecretKey = Boolean(process.env.PAIN_OBS_SECRET_ACCESS_KEY);
+  const hasPainAccessKey = Boolean(readEnv('PAIN_OBS_ACCESS_KEY_ID'));
+  const hasPainSecretKey = Boolean(readEnv('PAIN_OBS_SECRET_ACCESS_KEY'));
   if (hasPainAccessKey !== hasPainSecretKey) {
     throw new Error('Configure both PAIN_OBS_ACCESS_KEY_ID and PAIN_OBS_SECRET_ACCESS_KEY, or neither');
   }
 
   const useDedicatedPainCredentials = hasPainAccessKey && hasPainSecretKey;
   const config = {
-    // Use a dedicated pain-bucket credential pair when present; otherwise
-    // fall back to the history bucket's shared OBS credentials.
-    accessKeyId: useDedicatedPainCredentials
-      ? process.env.PAIN_OBS_ACCESS_KEY_ID
-      : process.env.OBS_ACCESS_KEY_ID,
-    secretAccessKey: useDedicatedPainCredentials
-      ? process.env.PAIN_OBS_SECRET_ACCESS_KEY
-      : process.env.OBS_SECRET_ACCESS_KEY,
-    endpoint: process.env.PAIN_OBS_ENDPOINT,
-    bucket: process.env.PAIN_OBS_BUCKET_NAME,
-    prefix: process.env.PAIN_OBS_PREFIX || 'inference_results/'
+    accessKeyId: useDedicatedPainCredentials ? readEnv('PAIN_OBS_ACCESS_KEY_ID') : readEnv('OBS_ACCESS_KEY_ID'),
+    secretAccessKey: useDedicatedPainCredentials ? readEnv('PAIN_OBS_SECRET_ACCESS_KEY') : readEnv('OBS_SECRET_ACCESS_KEY'),
+    securityToken: readEnv('PAIN_OBS_SECURITY_TOKEN'),
+    endpoint: readEnv('PAIN_OBS_ENDPOINT'),
+    bucket: readEnv('PAIN_OBS_BUCKET_NAME'),
+    prefix: readEnv('PAIN_OBS_PREFIX') || 'inference_results/'
   };
   const required = [
     [useDedicatedPainCredentials ? 'PAIN_OBS_ACCESS_KEY_ID' : 'OBS_ACCESS_KEY_ID', config.accessKeyId],
@@ -35,37 +34,27 @@ function getPainObsConfig() {
   return config;
 }
 
-function signRequest(config, method, canonicalResource, headers) {
-  const stringToSign = [
-    method,
-    headers['Content-MD5'] || '',
-    headers['Content-Type'] || '',
-    headers.Date,
-    canonicalResource
-  ].join('\n');
-  const signature = crypto
-    .createHmac('sha1', config.secretAccessKey)
-    .update(stringToSign)
-    .digest('base64');
-  return `OBS ${config.accessKeyId}:${signature}`;
+function createPainObsClient(config) {
+  const endpoint = /^https?:\/\//i.test(config.endpoint)
+    ? config.endpoint
+    : `https://${config.endpoint}`;
+  return new ObsClient({
+    access_key_id: config.accessKeyId,
+    secret_access_key: config.secretAccessKey,
+    security_token: config.securityToken || undefined,
+    server: endpoint
+  });
 }
 
-function requestPainObs(config, path, canonicalResource) {
-  return new Promise((resolve, reject) => {
-    const host = `${config.bucket}.${config.endpoint}`;
-    const headers = { Date: new Date().toUTCString(), Host: host };
-    headers.Authorization = signRequest(config, 'GET', canonicalResource, headers);
-    const req = https.request({ hostname: host, port: 443, path, method: 'GET', headers }, (res) => {
-      let body = '';
-      res.on('data', (chunk) => { body += chunk; });
-      res.on('end', () => {
-        if (res.statusCode === 200) resolve(body);
-        else reject(new Error(`Pain OBS ${res.statusCode}: ${body.substring(0, 200)}`));
-      });
-    });
-    req.on('error', reject);
-    req.end();
-  });
+function ensureObsSuccess(result, operation) {
+  const common = result && result.CommonMsg;
+  if (!common || common.Status >= 300) {
+    const status = common && common.Status ? common.Status : 'unknown';
+    const code = common && common.Code ? common.Code : 'UnknownError';
+    const message = common && common.Message ? common.Message : 'OBS request failed';
+    throw new Error(`Pain OBS ${operation} ${status}: ${code} ${message}`);
+  }
+  return result.InterfaceResult || {};
 }
 
 function getDeviceFolder(deviceId) {
@@ -73,44 +62,24 @@ function getDeviceFolder(deviceId) {
   if (!match) {
     throw new Error('Unsupported device_id for pain OBS');
   }
-  return `设备${match[1]}`;
-}
-
-function getSafeDeviceFolder(deviceId) {
-  const match = String(deviceId || '').match(/_medical(\d+)$/i);
-  if (!match) {
-    throw new Error('Unsupported device_id for pain OBS');
-  }
-  // Avoid relying on the source-file encoding for the Chinese OBS folder name.
   return `\u8bbe\u5907${match[1]}`;
 }
 
-function toEncodedObjectPath(objectKey) {
-  return `/${String(objectKey).split('/').map(encodeURIComponent).join('/')}`;
-}
-
-async function findLatestPainObject(config, deviceId) {
+async function findLatestPainObject(client, config, deviceId) {
   const basePrefix = config.prefix.endsWith('/') ? config.prefix : `${config.prefix}/`;
-  const prefix = `${basePrefix}${getSafeDeviceFolder(deviceId)}/`;
-  const xml = await requestPainObs(
-    config,
-    `/?prefix=${encodeURIComponent(prefix)}&max-keys=1000`,
-    `/${config.bucket}/`
-  );
-  const objects = [];
-  const regex = /<Key>([^<]+)<\/Key>.*?<LastModified>([^<]+)<\/LastModified>/gs;
-  let match;
-  while ((match = regex.exec(xml)) !== null) {
-    // Accept both the original _level.json naming and inference outputs such
-    // as _level0.json, _level1.json, and so on.
-    if (/_level\d*\.json$/i.test(match[1])) {
-      objects.push({ key: match[1], lastModified: match[2] });
-    }
-  }
+  const prefix = `${basePrefix}${getDeviceFolder(deviceId)}/`;
+  const result = await client.listObjects({
+    Bucket: config.bucket,
+    Prefix: prefix,
+    MaxKeys: 1000
+  });
+  const response = ensureObsSuccess(result, 'list');
+  const contents = Array.isArray(response.Contents) ? response.Contents : [];
+  const objects = contents.filter((item) => /_level\d*\.json$/i.test(item.Key));
   if (objects.length === 0) {
     throw new Error(`No pain result found for ${getDeviceFolder(deviceId)}`);
   }
-  objects.sort((a, b) => new Date(b.lastModified) - new Date(a.lastModified));
+  objects.sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified));
   return objects[0];
 }
 
@@ -120,35 +89,39 @@ module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
+  let client;
   try {
     const deviceId = req.query.device_id;
     if (!deviceId) return res.status(400).json({ success: false, error: 'device_id is required' });
 
     const config = getPainObsConfig();
-    const latest = await findLatestPainObject(config, deviceId);
-    const body = await requestPainObs(
-      config,
-      toEncodedObjectPath(latest.key),
-      `/${config.bucket}/${latest.key}`
-    );
-    const result = JSON.parse(body);
-    if (!Number.isFinite(Number(result.pain_level))) {
+    client = createPainObsClient(config);
+    const latest = await findLatestPainObject(client, config, deviceId);
+    const result = await client.getObject({ Bucket: config.bucket, Key: latest.Key });
+    const response = ensureObsSuccess(result, 'get');
+    const content = Buffer.isBuffer(response.Content)
+      ? response.Content.toString('utf8')
+      : String(response.Content || '');
+    const pain = JSON.parse(content);
+    if (!Number.isFinite(Number(pain.pain_level))) {
       throw new Error('pain_level is missing from the latest pain result');
     }
 
     return res.status(200).json({
       success: true,
       data: {
-        pain_level: Number(result.pain_level),
-        pain_label: result.pain_label || '',
-        confidence: Number(result.confidence) || 0,
-        upload_time: result.upload_time || '',
-        device_id: result.device_id || deviceId,
-        objectKey: latest.key
+        pain_level: Number(pain.pain_level),
+        pain_label: pain.pain_label || '',
+        confidence: Number(pain.confidence) || 0,
+        upload_time: pain.upload_time || '',
+        device_id: pain.device_id || deviceId,
+        objectKey: latest.Key
       }
     });
   } catch (error) {
     console.error('Pain OBS error:', error.message);
     return res.status(500).json({ success: false, error: error.message });
+  } finally {
+    if (client) client.close();
   }
 };
