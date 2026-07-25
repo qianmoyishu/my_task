@@ -101,7 +101,9 @@ async function findLatestPainObject(config, deviceId) {
   const regex = /<Key>([^<]+)<\/Key>.*?<LastModified>([^<]+)<\/LastModified>/gs;
   let match;
   while ((match = regex.exec(xml)) !== null) {
-    if (/_level\.json$/i.test(match[1])) {
+    // Accept both the original _level.json naming and inference outputs such
+    // as _level0.json, _level1.json, and so on.
+    if (/_level\d*\.json$/i.test(match[1])) {
       objects.push({ key: match[1], lastModified: match[2] });
     }
   }
