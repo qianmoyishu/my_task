@@ -3,15 +3,17 @@ const https = require('https');
 
 function getPainObsConfig() {
   const config = {
-    accessKeyId: process.env.PAIN_OBS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.PAIN_OBS_SECRET_ACCESS_KEY,
+    // Pain and history buckets share one IAM credential pair. Reuse the
+    // already-verified OBS credentials to avoid divergent Vercel secrets.
+    accessKeyId: process.env.OBS_ACCESS_KEY_ID,
+    secretAccessKey: process.env.OBS_SECRET_ACCESS_KEY,
     endpoint: process.env.PAIN_OBS_ENDPOINT,
     bucket: process.env.PAIN_OBS_BUCKET_NAME,
     prefix: process.env.PAIN_OBS_PREFIX || 'inference_results/'
   };
   const required = [
-    ['PAIN_OBS_ACCESS_KEY_ID', config.accessKeyId],
-    ['PAIN_OBS_SECRET_ACCESS_KEY', config.secretAccessKey],
+    ['OBS_ACCESS_KEY_ID', config.accessKeyId],
+    ['OBS_SECRET_ACCESS_KEY', config.secretAccessKey],
     ['PAIN_OBS_ENDPOINT', config.endpoint],
     ['PAIN_OBS_BUCKET_NAME', config.bucket]
   ];
