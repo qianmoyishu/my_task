@@ -2,18 +2,29 @@ const crypto = require('crypto');
 const https = require('https');
 
 function getPainObsConfig() {
+  const hasPainAccessKey = Boolean(process.env.PAIN_OBS_ACCESS_KEY_ID);
+  const hasPainSecretKey = Boolean(process.env.PAIN_OBS_SECRET_ACCESS_KEY);
+  if (hasPainAccessKey !== hasPainSecretKey) {
+    throw new Error('Configure both PAIN_OBS_ACCESS_KEY_ID and PAIN_OBS_SECRET_ACCESS_KEY, or neither');
+  }
+
+  const useDedicatedPainCredentials = hasPainAccessKey && hasPainSecretKey;
   const config = {
-    // Pain and history buckets share one IAM credential pair. Reuse the
-    // already-verified OBS credentials to avoid divergent Vercel secrets.
-    accessKeyId: process.env.OBS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.OBS_SECRET_ACCESS_KEY,
+    // Use a dedicated pain-bucket credential pair when present; otherwise
+    // fall back to the history bucket's shared OBS credentials.
+    accessKeyId: useDedicatedPainCredentials
+      ? process.env.PAIN_OBS_ACCESS_KEY_ID
+      : process.env.OBS_ACCESS_KEY_ID,
+    secretAccessKey: useDedicatedPainCredentials
+      ? process.env.PAIN_OBS_SECRET_ACCESS_KEY
+      : process.env.OBS_SECRET_ACCESS_KEY,
     endpoint: process.env.PAIN_OBS_ENDPOINT,
     bucket: process.env.PAIN_OBS_BUCKET_NAME,
     prefix: process.env.PAIN_OBS_PREFIX || 'inference_results/'
   };
   const required = [
-    ['OBS_ACCESS_KEY_ID', config.accessKeyId],
-    ['OBS_SECRET_ACCESS_KEY', config.secretAccessKey],
+    [useDedicatedPainCredentials ? 'PAIN_OBS_ACCESS_KEY_ID' : 'OBS_ACCESS_KEY_ID', config.accessKeyId],
+    [useDedicatedPainCredentials ? 'PAIN_OBS_SECRET_ACCESS_KEY' : 'OBS_SECRET_ACCESS_KEY', config.secretAccessKey],
     ['PAIN_OBS_ENDPOINT', config.endpoint],
     ['PAIN_OBS_BUCKET_NAME', config.bucket]
   ];
