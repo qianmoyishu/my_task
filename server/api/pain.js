@@ -65,7 +65,7 @@ function getDeviceFolder(deviceId) {
   return `\u8bbe\u5907${match[1]}`;
 }
 
-async function findLatestPainObject(client, config, deviceId) {
+async function listPainObjects(client, config, deviceId, limit = 20) {
   const basePrefix = config.prefix.endsWith('/') ? config.prefix : `${config.prefix}/`;
   const prefix = `${basePrefix}${getDeviceFolder(deviceId)}/`;
   const result = await client.listObjects({
@@ -80,7 +80,29 @@ async function findLatestPainObject(client, config, deviceId) {
     throw new Error(`No pain result found for ${getDeviceFolder(deviceId)}`);
   }
   objects.sort((a, b) => new Date(b.LastModified) - new Date(a.LastModified));
-  return objects[0];
+  const safeLimit = Math.max(1, Math.min(Number(limit) || 20, 50));
+  return objects.slice(0, safeLimit);
+}
+
+async function readPainResult(client, config, object, deviceId) {
+  const result = await client.getObject({ Bucket: config.bucket, Key: object.Key });
+  const response = ensureObsSuccess(result, 'get');
+  const content = Buffer.isBuffer(response.Content)
+    ? response.Content.toString('utf8')
+    : String(response.Content || '');
+  const pain = JSON.parse(content);
+  if (!Number.isFinite(Number(pain.pain_level))) {
+    throw new Error(`pain_level is missing from ${object.Key}`);
+  }
+
+  return {
+    pain_level: Number(pain.pain_level),
+    pain_label: pain.pain_label || '',
+    confidence: Number(pain.confidence) || 0,
+    upload_time: pain.upload_time || object.LastModified || '',
+    device_id: pain.device_id || deviceId,
+    objectKey: object.Key
+  };
 }
 
 module.exports = async (req, res) => {
@@ -96,28 +118,24 @@ module.exports = async (req, res) => {
 
     const config = getPainObsConfig();
     client = createPainObsClient(config);
-    const latest = await findLatestPainObject(client, config, deviceId);
-    const result = await client.getObject({ Bucket: config.bucket, Key: latest.Key });
-    const response = ensureObsSuccess(result, 'get');
-    const content = Buffer.isBuffer(response.Content)
-      ? response.Content.toString('utf8')
-      : String(response.Content || '');
-    const pain = JSON.parse(content);
-    if (!Number.isFinite(Number(pain.pain_level))) {
-      throw new Error('pain_level is missing from the latest pain result');
+    const wantsHistory = String(req.query.history || '') === '1';
+    const objects = await listPainObjects(client, config, deviceId, wantsHistory ? req.query.limit : 1);
+
+    if (wantsHistory) {
+      const results = await Promise.allSettled(
+        objects.map(object => readPainResult(client, config, object, deviceId))
+      );
+      const history = results
+        .filter(result => result.status === 'fulfilled')
+        .map(result => result.value);
+      if (history.length === 0) {
+        throw new Error('No readable pain history found');
+      }
+      return res.status(200).json({ success: true, data: history });
     }
 
-    return res.status(200).json({
-      success: true,
-      data: {
-        pain_level: Number(pain.pain_level),
-        pain_label: pain.pain_label || '',
-        confidence: Number(pain.confidence) || 0,
-        upload_time: pain.upload_time || '',
-        device_id: pain.device_id || deviceId,
-        objectKey: latest.Key
-      }
-    });
+    const latest = await readPainResult(client, config, objects[0], deviceId);
+    return res.status(200).json({ success: true, data: latest });
   } catch (error) {
     console.error('Pain OBS error:', error.message);
     return res.status(500).json({ success: false, error: error.message });
