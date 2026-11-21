@@ -1,0 +1,68 @@
+<view class="chat-container">
+  <view class="status-bar {{deviceOnline ? 'online' : 'offline'}}">
+    <view class="status-dot"></view>
+    <text class="status-text">{{deviceOnline ? '设备在线' : '设备离线'}}</text>
+  </view>
+
+  <scroll-view scroll-y class="message-list" scroll-into-view="bottom">
+    <view wx:if="{{messages.length === 0}}" class="empty-hint">
+      <text class="empty-icon">💬</text>
+      <text class="empty-text">开始和AI助手对话吧</text>
+    </view>
+
+    <view wx:for="{{messages}}" wx:key="ts" id="msg-{{index}}" class="message-row {{item.role}}">
+      <view class="avatar">
+        <text wx:if="{{item.role === 'user'}}">我</text>
+        <text wx:else>AI</text>
+      </view>
+      <view class="bubble {{item.role}}">
+        <text class="bubble-text">{{item.text}}</text>
+      </view>
+    </view>
+
+    <view wx:if="{{loading}}" class="message-row assistant" id="loading">
+      <view class="avatar">AI</view>
+      <view class="bubble assistant">
+        <view class="typing-dots">
+          <view class="dot"></view>
+          <view class="dot"></view>
+          <view class="dot"></view>
+        </view>
+      </view>
+    </view>
+
+    <view id="bottom"></view>
+  </scroll-view>
+
+  <view class="quick-actions">
+    <button
+      wx:for="{{quickPrompts}}"
+      wx:key="label"
+      class="quick-action"
+      bindtap="onQuickPrompt"
+      data-prompt="{{item.prompt}}"
+      disabled="{{loading}}"
+    >
+      {{item.label}}
+    </button>
+  </view>
+
+  <view class="input-bar">
+    <input
+      class="input-field"
+      placeholder="输入消息..."
+      value="{{inputValue}}"
+      bindinput="onInput"
+      confirm-type="send"
+      bindconfirm="onConfirm"
+      disabled="{{loading}}"
+    />
+    <button
+      class="send-btn {{inputValue ? 'active' : ''}}"
+      bindtap="sendMessage"
+      disabled="{{!inputValue || loading}}"
+    >
+      发送
+    </button>
+  </view>
+</view>

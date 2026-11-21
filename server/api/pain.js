@@ -1,13 +1,18 @@
 const crypto = require('crypto');
 const https = require('https');
 
+function readEnv(name) {
+  const value = process.env[name];
+  return typeof value === 'string' ? value.trim() : value;
+}
+
 function getPainObsConfig() {
   const config = {
-    accessKeyId: process.env.PAIN_OBS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.PAIN_OBS_SECRET_ACCESS_KEY,
-    endpoint: process.env.PAIN_OBS_ENDPOINT,
-    bucket: process.env.PAIN_OBS_BUCKET_NAME,
-    prefix: process.env.PAIN_OBS_PREFIX || 'inference_results/'
+    accessKeyId: readEnv('PAIN_OBS_ACCESS_KEY_ID'),
+    secretAccessKey: readEnv('PAIN_OBS_SECRET_ACCESS_KEY'),
+    endpoint: readEnv('PAIN_OBS_ENDPOINT'),
+    bucket: readEnv('PAIN_OBS_BUCKET_NAME'),
+    prefix: readEnv('PAIN_OBS_PREFIX') || 'inference_results/'
   };
   const required = [
     ['PAIN_OBS_ACCESS_KEY_ID', config.accessKeyId],
@@ -19,7 +24,8 @@ function getPainObsConfig() {
   if (missing.length > 0) {
     throw new Error(`Missing pain OBS environment variables: ${missing.join(', ')}`);
   }
-  return config;
+  const endpoint = config.endpoint.replace(/^https?:\/\//i, '').replace(/\/+$/, '');
+  return Object.assign({}, config, { endpoint });
 }
 
 function signRequest(config, method, canonicalResource, headers) {
@@ -80,7 +86,7 @@ async function listPainObjects(config, deviceId, limit = 20) {
   const regex = /<Key>([^<]+)<\/Key>.*?<LastModified>([^<]+)<\/LastModified>/gs;
   let match;
   while ((match = regex.exec(xml)) !== null) {
-    if (/_level\.json$/i.test(match[1])) {
+    if (/_level\d*\.json$/i.test(match[1])) {
       objects.push({ key: match[1], lastModified: match[2] });
     }
   }

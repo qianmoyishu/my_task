@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "医疗AI助手",
+  "navigationBarBackgroundColor": "#E4A15D",
+  "navigationBarTextStyle": "white",
+  "enablePullDownRefresh": false,
+  "backgroundTextStyle": "dark"
+}
